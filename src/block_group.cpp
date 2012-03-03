@@ -772,6 +772,10 @@ bool BlockGroup::reanalyzeBlock(Block *block)
     return true;
 }
 
+TreeElement* analazyAllInThread (Analyzer* analyzer, QString text) {
+    return analyzer->analyzeFull(text);
+}
+
 void BlockGroup::analyzeAll(QString text)
 {
     qDebug("\nBlockGroup::analyzeAll()");
@@ -787,7 +791,19 @@ void BlockGroup::analyzeAll(QString text)
     time.restart();
 
     // create new root element
-    TreeElement *rootEl = analyzer->analyzeFull(text);
+
+    //TreeElement *rootEl = analyzer->analyzeFull(text);
+
+//* Parallel processing via QtConcurrent only for AnalyzeFull.
+//  TODO UpdateBlocks should be put into thread too
+    QFuture<TreeElement*> future;
+    future = QtConcurrent::run(analazyAllInThread, analyzer, text);
+    QFutureWatcher<TreeElement*> watcher;
+    watcher.setFuture(future);
+    watcher.waitForFinished();
+
+    TreeElement *rootEl = watcher.result();
+
     qDebug("text analysis: %d", time.restart());
 
     // create new root

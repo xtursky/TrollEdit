@@ -13,6 +13,9 @@
 #include <QSet>
 #include <QTime>
 #include <QStatusBar>
+#include <QtConcurrentRun>
+#include <QFuture>
+#include <QFutureWatcher>
 
 #include "analyzer.h"
 
