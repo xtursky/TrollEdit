@@ -41,6 +41,8 @@ signals:
 
 private slots:
     void newFile();
+    void newTab();
+    void closeTab(int );
     void open();
     void openRecentFile();
     void about();
@@ -51,6 +53,8 @@ private slots:
 
     void printPdf();
     void showPrintableArea();
+    
+    void wInit();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -61,6 +65,7 @@ private:
 
     QAction *aboutQtAction;
     QAction *newAction;
+    QAction *newTabAction;
     QAction *openAction;
     QAction *revertAction;
     QAction *saveAction;
@@ -98,6 +103,7 @@ private:
 
     QToolBar *formatToolBar;
     QTabBar *tabBar;
+    QTabWidget *tabWidget;
     QSplashScreen *ico;
     QComboBox *scriptsBox;
     QLineEdit *searchLineEdit;
@@ -114,6 +120,7 @@ private:
     QList<QGraphicsLineItem *> list;
 
 
+    QGraphicsView* createView();
     void createActions();
     void createMenus();
     void createTabs();

@@ -8,23 +8,11 @@
 MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(parent)
 {
     langManager = new LanguageManager(programPath);
-    QGraphicsView *view = new QGraphicsView();
-
-    scene = new DocumentScene(this);
-    scene->setHighlighting(langManager->getConfigData());
-    connect(scene, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
-    connect(scene, SIGNAL(fileSelected(BlockGroup*)),
-            this, SLOT(setCurrentFile(BlockGroup*)));
-
-    view->setScene(scene);
-    setCentralWidget(view);
-
+    createTabs();
     createActions();
     createMenus();
     createToolBars();
     statusBar();
-  //  createTabs();
-
     readSettings();
 
     updateRecentFileActions();
@@ -48,6 +36,30 @@ MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(paren
                 "padding-right: 5px;"
                 "}"
 
+               "QTabWidget::pane {"
+                "border-top: 0px;"
+                "}"
+
+                "QPushButton{"
+                "color: white;"
+                "background: qradialgradient(cx: 0.4, cy: -0.1,"
+                "fx: 0.4, fy: -0.1,"
+                "radius: 1.35, stop: 0 #777, stop: 1 #333);"
+                "}"
+
+                "QTabBar{"
+                "color: white;"
+                "background: qradialgradient(cx: 0.4, cy: -0.1,"
+                "fx: 0.4, fy: -0.1,"
+                "radius: 1.35, stop: 0 #777, stop: 1 #333);"
+                "}"
+
+                "QTabBar::tab:selected {"
+                "color: black;"
+                "background: qradialgradient(cx: 0.3, cy: -0.4,"
+                "fx: 0.3, fy: -0.4,"
+                "radius: 1.35, stop: 0 #fff, stop: 1 #ddd);"
+                "}"
                 "QMenu {"
                 "background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,stop:0 #442c2c, stop:1 #4b2929);"
                 "border: 1px solid black;"
@@ -358,10 +370,73 @@ void MainWindow::createToolBars()
 
 }
 
+QGraphicsView* MainWindow::createView()
+{
+    QGraphicsView *view = new QGraphicsView();
+
+    scene = new DocumentScene(this);
+    scene->setHighlighting(langManager->getConfigData());
+    connect(scene, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
+    connect(scene, SIGNAL(fileSelected(BlockGroup*)),
+            this, SLOT(setCurrentFile(BlockGroup*)));
+
+    view->setScene(scene);
+    return view;
+}
+
+void MainWindow::newTab()
+{
+    qDebug("newTab()");
+    int count=tabWidget->count();
+    QString* name=new QString("tab");
+    QString* numb=new QString("");
+    numb->setNum(count);
+    name->append(numb);
+    QWidget* widget=createView(); // get QGraphicView
+    tabWidget->addTab(widget, *name);
+    tabWidget->setCurrentWidget(widget); // focus on new tab
+    return;
+}
+
+void MainWindow::newFile()
+{
+    qDebug("newFile()");
+    QGraphicsView* view=(QGraphicsView *) tabWidget->currentWidget();
+    DocumentScene* dScene=(DocumentScene *) view->scene();
+    if(dScene==0){
+        qDebug("newFile() Error: dScene = null");
+        scene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText()));
+        return;
+    }else{
+        dScene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText()));
+    }
+}
+
+void MainWindow::closeTab(int position){
+    if(tabWidget->count()==1){
+        return;
+    }
+    tabWidget->removeTab(position);
+}
+
 void MainWindow::createTabs()
 {
-    tabBar = new QTabBar(this);
-    tabBar->addTab("test");
+    tabWidget = new QTabWidget(this);
+
+
+    tabWidget->setDocumentMode(true);
+    tabWidget->setMovable(true);
+    tabWidget->setTabsClosable(true);
+    connect(tabWidget, SIGNAL(tabCloseRequested(int)), this, SLOT(closeTab(int)));
+
+    QIcon addTabIcon(":/plus.png");
+    QPushButton *m_addButton = new QPushButton(addTabIcon,"", this);
+    m_addButton->setObjectName("addButton");
+    connect(m_addButton, SIGNAL(clicked()), this, SLOT(newTab()));
+    tabWidget->setCornerWidget(m_addButton, Qt::TopLeftCorner);
+    tabWidget->addTab(createView(), "tab0");
+
+    this->setCentralWidget(tabWidget);
 }
 
 
@@ -426,11 +501,6 @@ void MainWindow::setCurrentFile(BlockGroup *group)
             closeAction->setText(tr("&Close \"%1\"").arg(fileName));
         }
     }
-}
-
-void MainWindow::newFile()
-{
-    scene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText()));
 }
 
 void MainWindow::open()

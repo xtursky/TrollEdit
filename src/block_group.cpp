@@ -41,6 +41,8 @@ BlockGroup::BlockGroup(QString text, Analyzer* analyzer, DocumentScene *scene)
     searched = false;
     smoothTextAnimation = false;
     foldableBlocks.clear();
+    
+    waitAnalyzer = true;    
 
     computeTextSize();
     setAcceptDrops(true);
@@ -772,9 +774,58 @@ bool BlockGroup::reanalyzeBlock(Block *block)
     return true;
 }
 
-TreeElement* analazyAllInThread (Analyzer* analyzer, QString text) {
-    return analyzer->analyzeFull(text);
+// slot
+//void BlockGroup::updateAllInThread (QSharedPointer<TreeElement> rootElObj) {
+//void BlockGroup::updateAllInThread (TreeElement* rootEl) {
+void BlockGroup::updateAllInThread () {
+//    TreeElement *rootEl = rootElObj.copyAndSetPointer;
+    
+    mutex.lock();
+    TreeElement *rootEl = groupRootEl;
+    mutex.unlock();
+    
+    // create new root
+    Block *newRoot = new Block(rootEl, 0, this);
+    qDebug("root creation: %d", time.restart());
+    
+    // set new root
+    setRoot(newRoot);
+    qDebug("root update: %d", time.restart());
+    
+    return;
 }
+
+//Process in parallel thread
+TreeElement* BlockGroup::analazyAllInThread (QString text) {
+    
+    TreeElement* rootEl = analyzer->analyzeFull(text);
+    
+    mutex.lock();
+    groupRootEl = rootEl;
+    mutex.unlock();
+    
+//    emit analyzerFinished(rootEl);
+        
+    return rootEl; 
+}
+
+/*
+//Process in parallel thread
+TreeElement* analazyAllInThread (Analyzer* analyzer, QString text, BlockGroup *obj) {
+    // create and return new root element
+    TreeElement* rootEl = analyzer->analyzeFull(text);
+    
+    emit obj->analyzerFinished(rootEl);
+    BlockGroup::emitAnalyzerFinished(rootEl, obj);
+        
+    return rootEl;
+}
+
+void BlockGroup::emitAnalyzerFinished(TreeElement* rootEl, BlockGroup *obj) {
+    emit obj->analyzerFinished(rootEl);
+    return;
+}
+*/
 
 void BlockGroup::analyzeAll(QString text)
 {
@@ -789,30 +840,31 @@ void BlockGroup::analyzeAll(QString text)
         if (text.isEmpty()) text = "    ";
     }
     time.restart();
+    
 
-    // create new root element
-
-    //TreeElement *rootEl = analyzer->analyzeFull(text);
-
-//* Parallel processing via QtConcurrent only for AnalyzeFull.
-//  TODO UpdateBlocks should be put into thread too
+//  Parallel processing via QtConcurrent only for AnalyzeFull.
     QFuture<TreeElement*> future;
-    future = QtConcurrent::run(analazyAllInThread, analyzer, text);
-    QFutureWatcher<TreeElement*> watcher;
-    watcher.setFuture(future);
-    watcher.waitForFinished();
-
-    TreeElement *rootEl = watcher.result();
-
+    future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text);    
+    watcher.setFuture(future);        
+    
+    qDebug() << "text size : " << text.size();
+    
+    if (waitAnalyzer == false) {
+        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
+        qDebug() << "waitAnalyzer : " << waitAnalyzer;
+        qDebug() << "connect updateALlInThread";
+    }
+    else  {
+        qDebug() << "waitAnalyzer : " << waitAnalyzer;
+        watcher.waitForFinished();
+        groupRootEl = watcher.result();
+        updateAllInThread();
+        qDebug() << "direct updateAllInThread()";
+    }
+    
     qDebug("text analysis: %d", time.restart());
-
-    // create new root
-    Block *newRoot = new Block(rootEl, 0, this);
-    qDebug("root creation: %d", time.restart());
-
-    // set new root
-    setRoot(newRoot);
-    qDebug("root update: %d", time.restart());
+        
+    return;
 }
 
 QString BlockGroup::toText(bool noDocs) const
