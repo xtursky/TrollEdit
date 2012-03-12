@@ -81,6 +81,7 @@ public:
     
     bool waitAnalyzer;
     TreeElement* analazyAllInThread (QString text);
+    TreeElement* analazyAllInThread (QString text, bool masterIsWaiting);
     void emitAnalyzerFinished(TreeElement* rootEl);
     QFutureWatcher<TreeElement*> watcher;
     TreeElement *groupRootEl;
@@ -121,8 +122,8 @@ public slots:
     void moveFrom(Block *block, int key, int cursorPos);
     void updateSize();
 //    void updateAllInThread (QSharedPointer<TreeElement> rootElObj);
-//    void updateAllInThread (TreeElement *rootEl);
-    void updateAllInThread ();
+    void updateAllInThread (TreeElement *rootEl);
+//    void updateAllInThread ();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);

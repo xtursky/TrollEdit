@@ -16,7 +16,8 @@ int main(int argc, char *argv[])
     app.setApplicationName("TrollEdit");
     app.setStartDragDistance(app.startDragDistance() * 2);
 
-    QPixmap pixmap(":/m/logo");
+//    QPixmap pixmap(":/m/logo");
+    QPixmap pixmap(":/m/logo2");
     QSplashScreen splashScreen(pixmap,Qt::WindowStaysOnTopHint);
     
     // find the directory of the program

@@ -14,15 +14,19 @@
 #include <QPrintPreviewDialog>
 #include <QPainter>
 #include <QList>
+#include <QTableView>
 
 typedef struct pokus
 {
         int test;
 } POKUS;
 
+
 class DocumentScene;
 class LanguageManager;
 class BlockGroup;
+class QTableWidget;
+class QTableWidgetItem;
 
 class MainWindow : public QMainWindow
 {
@@ -43,6 +47,7 @@ private slots:
     void newFile();
     void newTab();
     void closeTab(int );
+    void tabChanged(int );
     void open();
     void openRecentFile();
     void about();
@@ -53,8 +58,9 @@ private slots:
 
     void printPdf();
     void showPrintableArea();
-    
-    void wInit();
+    void setShort();
+    void savedShortcuts();
+	void wInit();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -91,6 +97,7 @@ private:
 
     QAction *helpAction;
     QAction *aboutAction;
+	QAction *shortAction;
 
     QAction *textBoldAction;
     QAction *textItalicAction;
@@ -102,7 +109,7 @@ private:
     QMenu *helpMenu;
 
     QToolBar *formatToolBar;
-    QTabBar *tabBar;
+	QTabBar *tabBar;
     QTabWidget *tabWidget;
     QSplashScreen *ico;
     QComboBox *scriptsBox;
@@ -119,8 +126,8 @@ private:
     QGraphicsLineItem *line;
     QList<QGraphicsLineItem *> list;
 
-
     QGraphicsView* createView();
+	QTableWidget *m_table;
     void createActions();
     void createMenus();
     void createTabs();
@@ -136,6 +143,7 @@ private:
 
     void readSettings();
     void writeSettings();
+//  set_shortcuts *setCustomShortcuts(this Qt::Window);
 };
 
 #endif // MAIN_WINDOW_H

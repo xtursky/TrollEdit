@@ -776,14 +776,15 @@ bool BlockGroup::reanalyzeBlock(Block *block)
 
 // slot
 //void BlockGroup::updateAllInThread (QSharedPointer<TreeElement> rootElObj) {
-//void BlockGroup::updateAllInThread (TreeElement* rootEl) {
-void BlockGroup::updateAllInThread () {
+void BlockGroup::updateAllInThread (TreeElement* rootEl) {
+//void BlockGroup::updateAllInThread () {
 //    TreeElement *rootEl = rootElObj.copyAndSetPointer;
-    
+
+/*    
     mutex.lock();
     TreeElement *rootEl = groupRootEl;
     mutex.unlock();
-    
+*/    
     // create new root
     Block *newRoot = new Block(rootEl, 0, this);
     qDebug("root creation: %d", time.restart());
@@ -792,20 +793,27 @@ void BlockGroup::updateAllInThread () {
     setRoot(newRoot);
     qDebug("root update: %d", time.restart());
     
+	if (waitAnalyzer == true) 
+		waitAnalyzer = false;
+	
     return;
 }
 
 //Process in parallel thread
-TreeElement* BlockGroup::analazyAllInThread (QString text) {
+TreeElement* BlockGroup::analazyAllInThread (QString text, bool masterIsWaiting) {
     
     TreeElement* rootEl = analyzer->analyzeFull(text);
-    
+/*    
     mutex.lock();
     groupRootEl = rootEl;
     mutex.unlock();
-    
-//    emit analyzerFinished(rootEl);
-        
+*/    
+    if (masterIsWaiting == false) 
+    {  
+        emit analyzerFinished(rootEl);
+//        return null;
+    }   
+		
     return rootEl; 
 }
 
@@ -821,7 +829,7 @@ TreeElement* analazyAllInThread (Analyzer* analyzer, QString text, BlockGroup *o
     return rootEl;
 }
 
-void BlockGroup::emitAnalyzerFinished(TreeElement* rootEl, BlockGroup *obj) {
+void BlockGroup::analyzerFinished(TreeElement* rootEl) {
     emit obj->analyzerFinished(rootEl);
     return;
 }
@@ -844,21 +852,21 @@ void BlockGroup::analyzeAll(QString text)
 
 //  Parallel processing via QtConcurrent only for AnalyzeFull.
     QFuture<TreeElement*> future;
-    future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text);    
+    future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
     watcher.setFuture(future);        
     
     qDebug() << "text size : " << text.size();
     
     if (waitAnalyzer == false) {
-        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
-        qDebug() << "waitAnalyzer : " << waitAnalyzer;
+//        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
+        connect(&watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
         qDebug() << "connect updateALlInThread";
     }
     else  {
         qDebug() << "waitAnalyzer : " << waitAnalyzer;
         watcher.waitForFinished();
-        groupRootEl = watcher.result();
-        updateAllInThread();
+//        groupRootEl = watcher.result();
+        updateAllInThread(watcher.result());
         qDebug() << "direct updateAllInThread()";
     }
     
