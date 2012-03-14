@@ -257,6 +257,8 @@ void DocBlock::addImage(const QImage &image, QString imagePath)
     cursor.document()->setPlainText("");
     cursor.insertImage(image);
     path = imagePath;
+    
+//    ToDo tu sa da spravit scaling pre prilis velky obrazok
 
     if (arrow != 0) arrow->setColor(getHoverColor());
 

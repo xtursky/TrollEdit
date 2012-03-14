@@ -315,7 +315,7 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
           root = nextElementAST();
           root->analyzer = this;
           //stackDump(L);
-          qDebug() << "------------DYNAMIC--------------";
+//          qDebug() << "------------DYNAMIC--------------";
       }else{
           root = createTreeFromLuaStack();
 
@@ -339,7 +339,7 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
       while(hasNextElementAST() && iter->hasNext()){
           k++;
 
-           qDebug() << "------------Element--------------";
+//           qDebug() << "------------Element--------------";
            iter1 = nextElementAST();                            //index pre pocet nextov
            QString string = iter1->getType();//->getText(false);
 //           stackDump(L);
@@ -608,7 +608,7 @@ TreeElement *Analyzer::nextElementAST()
 
 bool Analyzer::hasNextElementAST()
 {
-    qDebug("hasNextElementAST()");
+//    qDebug("hasNextElementAST()");
     if( ( lua_gettop(L)>=9 ) == true ) //! ak je v zasobniku viac ako 10 prvkov, tak existuje element AST
     {
         return true;
@@ -623,19 +623,19 @@ bool Analyzer::isLeafElementAST()
 {
 //    qDebug() << "isLeafElementAST()";
     if(lua_istable(L,-2) && lua_objlen(L, -2)==1){
-        qDebug() << "isLeafElementAST() true";
+//        qDebug() << "isLeafElementAST() true";
         return true;
     }else{
-        qDebug() << "isLeafElementAST() false";
+//        qDebug() << "isLeafElementAST() false";
         return false;
     }
 }
 
 int Analyzer::getCountElementChildrenAST()
 {
-    qDebug() << "getCountElementChildrenAST()";
+//    qDebug() << "getCountElementChildrenAST()";
     if(lua_istable(L,-2)){
-        qDebug() << "getCountElementChildrenAST() " << lua_objlen(L, -2)-1;
+//        qDebug() << "getCountElementChildrenAST() " << lua_objlen(L, -2)-1;
         return lua_objlen(L, -2)-1;
     }else{
         return 0;
@@ -644,7 +644,7 @@ int Analyzer::getCountElementChildrenAST()
 
 QList<TreeElement*> Analyzer::getElementChildrenAST(){
     QList<TreeElement*> children;
-    qDebug() << "getElementChildrenAST()";
+//    qDebug() << "getElementChildrenAST()";
 
     int hlbka_child = lua_gettop(L);
     int rozbalenie_child = lua_tonumber(L, -3);
@@ -675,7 +675,7 @@ QList<TreeElement*> Analyzer::getElementChildrenAST(){
 }
 
 TreeElement* Analyzer::getParentElementAST(){
-    qDebug() << "getParentElementAST()";
+//    qDebug() << "getParentElementAST()";
 
     if( lua_gettop(L) > 10 ){
         TreeElement* parent;
@@ -732,7 +732,7 @@ QString Analyzer::getParentAST(){
     if(lua_isnumber(L,-3)){
         rozbalenie_child = lua_tonumber(L, -3);
     }else{
-        qDebug() << "nie je number"; //! parent nema parenta
+//        qDebug() << "nie je number"; //! parent nema parenta
         return 0;
     }
 
@@ -748,7 +748,7 @@ QString Analyzer::getParentAST(){
             }else{
                 if(lua_tonumber(L,-3)==1){
                     //glob_index-=lua_tonumber(L,-3);
-                    //qDebug() << "pop-3: -n: " << lua_tonumber(L,-3);
+//                    qDebug() << "pop-3: -n: " << lua_tonumber(L,-3);
                 }else{
                     //glob_index-=lua_tonumber(L,-3)-1;
                     //qDebug() << "pop-3: -n+1: " << lua_tonumber(L,-3)-1 << "  glob: " << glob_index ;

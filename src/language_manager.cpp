@@ -68,7 +68,7 @@ Analyzer *LanguageManager::getAnalyzerFor(QString suffix) const
 
 Analyzer *LanguageManager::getAnalyzerForLang(QString language) const
 {
-    qDebug() << "getAnalyzerForLang";
+//    qDebug() << "getAnalyzerForLang";
     return getAnalyzerFor(languages.value(language));
 }
 

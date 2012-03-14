@@ -11,7 +11,7 @@
 MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(parent)
 {
     langManager = new LanguageManager(programPath);
-	QGraphicsView *view = new QGraphicsView();
+//	QGraphicsView *view = new QGraphicsView();
 
     createTabs();
    /* scene = new DocumentScene(this);

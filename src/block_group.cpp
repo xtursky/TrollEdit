@@ -839,6 +839,8 @@ void BlockGroup::analyzeAll(QString text)
 {
     qDebug("\nBlockGroup::analyzeAll()");
 
+    qDebug() << "text size : " << text.size();
+    
     if (text.isEmpty()) //! use snippet if text is empty
     {
         text = analyzer->getSnippet();
@@ -855,7 +857,6 @@ void BlockGroup::analyzeAll(QString text)
     future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
     watcher.setFuture(future);        
     
-    qDebug() << "text size : " << text.size();
     
     if (waitAnalyzer == false) {
 //        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));

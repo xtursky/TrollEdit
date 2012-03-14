@@ -578,7 +578,7 @@ void DocumentScene::wheelEvent(QGraphicsSceneWheelEvent *event)
         //QSyntaxHighlighter  *highlighter = new QSyntaxHighlighter(txt->document());
         //currentGroup->setVisible(false);
         currentGroup->highlightON_OFF();
-        qDebug()<< "highlightON_OFF()";
+//        qDebug()<< "highlightON_OFF()";
         update();
 
         if (delta > 0)

@@ -98,7 +98,7 @@ Block::Block(TreeElement *el, Block *parentBlock, BlockGroup *blockGroup)
        // for (int i = 0; i < child_count; i++)children.size()
        for (int i = 0; i < children.size(); i++)
         {
-            qDebug() << "child_count " << child_count <<"  size() "<< children.size() << " par:"<< element->getType();
+//            qDebug() << "child_count " << child_count <<"  size() "<< children.size() << " par:"<< element->getType();
             TreeElement *childEl = children[i];//element->next();
 //            if( childEl->local_index != childEl->analyzer->glob_index){ //!
 //                childEl->analyzer->resetAST();
