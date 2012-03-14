@@ -11,19 +11,9 @@
 MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(parent)
 {
     langManager = new LanguageManager(programPath);
-//	QGraphicsView *view = new QGraphicsView();
 
     createTabs();
-   /* scene = new DocumentScene(this);
-    scene->setHighlighting(langManager->getConfigData());
-    connect(scene, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
-    connect(scene, SIGNAL(fileSelected(BlockGroup*)),
-            this, SLOT(setCurrentFile(BlockGroup*)));
-
-    view->setScene(scene);
-    setCentralWidget(view);*/
-
-    createActions();
+//    createActions();
     createMenus();
     createToolBars();
     statusBar();
@@ -35,7 +25,7 @@ MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(paren
     icon.addFile(":/icon16.png");
     icon.addFile(":/icon32.png");
     setWindowIcon(icon);
-    setCurrentFile(0);
+    //setCurrentFile(0);
 
     setStyleSheet(
                 "QMainWindow { "
@@ -159,20 +149,21 @@ MainWindow::MainWindow(QString programPath, QWidget *parent) : QMainWindow(paren
                 );
 }
 
-void MainWindow::createActions()
+void MainWindow::createActions(DocumentScene *scene)
 {
     groupActions = new QActionGroup(this);
-	
-	QFile file("shortcuts.txt");
+
+        QFile file("shortcuts.ini");
+
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::information(0,"error",file.errorString());
     }
     QString textstring;
     //QString textstring = file.readLine();
-	
+
     // new
-    QIcon newIcon(":/m/new"); newIcon.addFile(":/s/new");
+    QIcon newIcon(":/m/new"); newIcon.addFile(":/s/new"); // works
     newAction = new QAction(newIcon, tr("&New"), this);
     textstring = file.readLine();
     textstring.remove(6,1);
@@ -182,7 +173,7 @@ void MainWindow::createActions()
     addAction(newAction);
 
     // open
-    QIcon openIcon(":/m/open"); openIcon.addFile(":/s/open");
+    QIcon openIcon(":/m/open"); openIcon.addFile(":/s/open"); // works
     openAction = new QAction(openIcon, tr("&Open..."), this);
     textstring = file.readLine();
     textstring.remove(6,1);
@@ -191,9 +182,11 @@ void MainWindow::createActions()
     connect(openAction, SIGNAL(triggered()), this, SLOT(open()));
 
     // revert
+    revertAction = new QAction(tr("&Revert"), this); // ??? is this used ???
+        textstring = file.readLine();
 //    QIcon revertIcon(":/m/open"); openIcon.addFile(":/s/open");
     revertAction = new QAction(tr("&Revert"), this);
-	textstring = file.readLine();
+        textstring = file.readLine();
     textstring.remove(6,1);
     revertAction->setShortcut((textstring));
     revertAction->setToolTip(tr("Revert to last save"));
@@ -201,7 +194,7 @@ void MainWindow::createActions()
     groupActions->addAction(revertAction);
 
     // save
-    QIcon saveIcon(":/m/save"); saveIcon.addFile(":/s/save");
+    QIcon saveIcon(":/m/save"); saveIcon.addFile(":/s/save"); // works (only for 1 scene)
     saveAction = new QAction(saveIcon, tr("&Save"), this);
     textstring = file.readLine();
     textstring.remove(6,1);
@@ -211,7 +204,7 @@ void MainWindow::createActions()
     groupActions->addAction(saveAction);
 
     // save as
-    QIcon saveAsIcon(":/m/save-as"); saveAsIcon.addFile(":/s/save-as");
+    QIcon saveAsIcon(":/m/save-as"); saveAsIcon.addFile(":/s/save-as"); // probably same as saveAction
     saveAsAction = new QAction(saveAsIcon, tr("Save &As..."), this);
     saveAsAction->setToolTip(tr("Save file as..."));
     connect(saveAsAction, SIGNAL(triggered()), scene, SLOT(saveGroupAs()));
@@ -219,19 +212,19 @@ void MainWindow::createActions()
 
     // save as
 //    QIcon saveAsNoDocIcon(":/m/save-as"); saveAsIcon.addFile(":/s/save-as");
-    saveAsNoDocAction = new QAction(tr("Save Without Comments"), this);
+    saveAsNoDocAction = new QAction(tr("Save Without Comments"), this); // ??? is this used ???
     saveAsNoDocAction->setToolTip(tr("Save file without any comments"));
     connect(saveAsNoDocAction, SIGNAL(triggered()), scene, SLOT(saveGroupAsWithoutDoc()));
     groupActions->addAction(saveAsNoDocAction);
 
     // save all
-    saveAllAction = new QAction(tr("Save All"), this);
+    saveAllAction = new QAction(tr("Save All"), this); // works for 1 tab ??? does saveAllGroups work as it should ???
     saveAllAction->setToolTip(tr("Save all files"));
     connect(saveAllAction, SIGNAL(triggered()), scene, SLOT(saveAllGroups()));
 
     // close
-    QIcon closeIcon(":/m/close"); closeIcon.addFile(":/s/close");
-    closeAction = new QAction(closeIcon, tr("&Close File"), this);
+    QIcon closeIcon(":/m/close"); closeIcon.addFile(":/s/close"); // works
+    closeAction = new QAction(closeIcon, tr("&Close File"), scene);
     textstring = file.readLine();
     textstring.remove(6,1);
     closeAction->setShortcut((textstring));
@@ -242,7 +235,7 @@ void MainWindow::createActions()
     // close all
     closeAllAction = new QAction(tr("Close All"), this);
     closeAllAction->setToolTip(tr("Close all files"));
-    connect(closeAllAction, SIGNAL(triggered()), scene, SLOT(closeAllGroups()));
+    connect(closeAllAction, SIGNAL(triggered()), this, SLOT(DocumentScene::closeAllGroups()));
 
     // print pdf
     QIcon printIcon(":/m/print"); printIcon.addFile(":/s/print");
@@ -252,7 +245,7 @@ void MainWindow::createActions()
     printPdfAction->setShortcut((textstring));
     printPdfAction->setToolTip(tr("Print scene to PDF"));
     connect(printPdfAction, SIGNAL(triggered()), this, SLOT(printPdf()));
-	groupActions->addAction(printPdfAction);
+        groupActions->addAction(printPdfAction);
 
     // show plain text editor
     QIcon editIcon(":/m/edit"); printIcon.addFile(":/s/edit");
@@ -308,7 +301,7 @@ void MainWindow::createActions()
 
     // about Qt
     aboutQtAction = new QAction(tr("About &Qt"), this);
-    aboutQtAction->setStatusTip(tr("Show the Qt library’s About box"));
+    aboutQtAction->setStatusTip(tr("Show the Qt library?s About box"));
     connect(aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 
     // shortcuts
@@ -321,7 +314,7 @@ void MainWindow::createActions()
     printableAreaAction->setToolTip(tr("Show margins of printable area"));
     connect(printableAreaAction, SIGNAL(triggered()), this, SLOT(showPrintableArea()));
     printableAreaAction->setCheckable(true);
-	file.close();
+        file.close();
 }
 
 void MainWindow::createMenus()
@@ -374,7 +367,7 @@ void MainWindow::createMenus()
 
 void MainWindow::setShort()
 {
-    QDialog *set_shortcuts = new QDialog(0);
+    set_shortcuts = new QDialog();
     QPushButton *Savebutton = new QPushButton("OK", set_shortcuts);
     QPushButton *Closebutton = new QPushButton("Close", set_shortcuts);
 
@@ -391,7 +384,7 @@ void MainWindow::setShort()
     m_table->setItem(6,0, new QTableWidgetItem("Edit plain text"));
 
 
-    QFile file("shortcuts.txt");
+    QFile file("shortcuts.ini");
     if(!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
         QMessageBox::information(0,"error",file.errorString());
@@ -414,13 +407,14 @@ void MainWindow::setShort()
     Closebutton->move(130,250);
     set_shortcuts->show();
 
+
     QObject::connect(Savebutton, SIGNAL(clicked()),this,SLOT(savedShortcuts()));
-    set_shortcuts->exec();
+    QObject::connect(Closebutton, SIGNAL(clicked()),this,SLOT(closeShortcuts()));
 }
 
 void MainWindow::savedShortcuts()
 {
-    QFile file("shortcuts.txt");
+    QFile file("shortcuts.ini");
     if(!file.open(QIODevice::WriteOnly | QIODevice::Text))
     {
         QMessageBox::information(0,"error",file.errorString());
@@ -448,8 +442,13 @@ void MainWindow::savedShortcuts()
     printPdfAction->setShortcut((textstring));
     textstring = m_table->item(6,1)->text();
     plainEditAction->setShortcut((textstring));
-    //MainWindow::createMenus();
+    set_shortcuts->close();
 }
+
+    void MainWindow::closeShortcuts()
+{
+    set_shortcuts->close();
+    }
 
 void MainWindow::createToolBars()
 {
@@ -476,7 +475,7 @@ void MainWindow::createToolBars()
     connect(scriptsBox, SIGNAL(currentIndexChanged(QString)), this, SLOT(langChanged(QString)));
     formatToolBar->addWidget(scriptsBox);
     formatToolBar->addSeparator();
-	
+
     searchLabel = new QLabel();
 //    searchLabel->setText(" Search ");
     searchLabel->setPixmap(QPixmap(":/m/search"));
@@ -495,14 +494,21 @@ QGraphicsView* MainWindow::createView()
 {
     QGraphicsView *view = new QGraphicsView();
 
-    scene = new DocumentScene(this);
+    DocumentScene *scene = new DocumentScene(this);
     scene->setHighlighting(langManager->getConfigData());
     connect(scene, SIGNAL(modified(bool)), this, SLOT(setModified(bool)));
     connect(scene, SIGNAL(fileSelected(BlockGroup*)),
-            this, SLOT(setCurrentFile(BlockGroup*)));
+            this, SLOT(setCurrentFile(BlockGroup*))); // CHECK
 
     view->setScene(scene);
     return view;
+}
+
+DocumentScene* MainWindow::getScene()
+{
+    QGraphicsView* view=(QGraphicsView *) tabWidget->currentWidget();
+    DocumentScene* dScene=(DocumentScene *) view->scene();
+    return dScene;
 }
 
 void MainWindow::newTab()
@@ -514,6 +520,13 @@ void MainWindow::newTab()
     numb->setNum(count);
     name->append(numb);
     QWidget* widget=createView(); // get QGraphicView
+
+    QGraphicsView* view=(QGraphicsView *) widget;
+    DocumentScene* dScene=(DocumentScene *) view->scene();
+    dScene->main=this;
+
+    createActions(dScene);
+
     tabWidget->addTab(widget, *name);
     tabWidget->setCurrentWidget(widget); // focus on new tab
     return;
@@ -522,34 +535,40 @@ void MainWindow::newTab()
 void MainWindow::newFile()
 {
     qDebug("newFile()");
-    QGraphicsView* view=(QGraphicsView *) tabWidget->currentWidget();
-    DocumentScene* dScene=(DocumentScene *) view->scene();
-    if(dScene==0){
+    DocumentScene* dScene=getScene();
+    if(dScene==0){ // this should not ever happen
         qDebug("newFile() Error: dScene = null");
-        scene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText()));
         return;
     }else{
-        dScene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText()));
+        dScene->newGroup(scriptsBox->currentText());
     }
+}
+
+LanguageManager* MainWindow::getLangManager(){
+    return this->langManager;
+}
+
+QComboBox* MainWindow::getScriptBox(){
+    return this->scriptsBox;
 }
 
 void MainWindow::load(QString fileName)
 {
     Analyzer *analyzer = langManager->getAnalyzerFor(QFileInfo(fileName).suffix());
-    QGraphicsView* view=(QGraphicsView *) tabWidget->currentWidget();
-    DocumentScene* dScene=(DocumentScene *) view->scene();
-    if(dScene==0){
-        qDebug("newFile() Error: dScene = null");
-        scene->loadGroup(fileName, analyzer);
+    DocumentScene* dScene=getScene();
+    if(dScene==0){ // this should not ever happen
+        qDebug("load() Error: dScene = null");
         return;
     }else{
-        dScene->newGroup(langManager->getAnalyzerForLang(scriptsBox->currentText())); // CHECK
+        qDebug() << "load() filename=" << fileName;
+     //   qDebug(fileName);
+        dScene->loadGroup(fileName, QFileInfo(fileName).suffix());
     }
 }
 
-void MainWindow::langChanged(QString newLang) // FIX
+void MainWindow::langChanged(QString newLang)
 {
-    scene->setGroupLang(langManager->getAnalyzerForLang(newLang));
+    getScene()->setGroupLang(langManager->getAnalyzerForLang(newLang));
 }
 
 void MainWindow::closeTab(int position){
@@ -561,6 +580,7 @@ void MainWindow::closeTab(int position){
 
 void MainWindow::tabChanged(int position){
     qDebug("tabChanged()");
+    setCurrentFile(getScene());
 }
 
 void MainWindow::createTabs()
@@ -578,7 +598,15 @@ void MainWindow::createTabs()
     m_addButton->setObjectName("addButton");
     connect(m_addButton, SIGNAL(clicked()), this, SLOT(newTab()));
     tabWidget->setCornerWidget(m_addButton, Qt::TopLeftCorner);
-    tabWidget->addTab(createView(), "tab0");
+
+    QWidget* widget=createView(); // get QGraphicView
+    QGraphicsView* view=(QGraphicsView *) widget;
+    DocumentScene* dScene=(DocumentScene *) view->scene();
+    dScene->main=this;
+    createActions(dScene);
+
+    tabWidget->addTab(widget, "*tab0");
+    tabWidget->setCurrentWidget(widget); // focus on new tab
 
     this->setCentralWidget(tabWidget);
 }
@@ -599,8 +627,8 @@ void MainWindow::setCurrentFile(BlockGroup *group)
     if (group != 0)
     {
         fileName = group->getFilePath();
-        lang = group->getAnalyzer()->getLanguageName();
-        selectedGroup = group;
+   //     lang = group->getAnalyzer()->getLanguageName();
+  //      selectedGroup = group;
     }
     else
     {
@@ -647,11 +675,73 @@ void MainWindow::setCurrentFile(BlockGroup *group)
     }
 }
 
+void MainWindow::setCurrentFile(DocumentScene *scene)
+{
+    QString fileName;
+    QString lang;
+
+    if(scene!=0){
+        BlockGroup *group=scene->selectedGroup();
+
+        if (group != 0)
+        {
+            fileName = group->getFilePath();
+            lang = group->getAnalyzer()->getLanguageName();
+            selectedGroup = group;
+        }
+        else
+        {
+            qDebug("selected group == 0");
+            lang = "";
+            fileName = "Empty";
+            selectedGroup = 0;
+        }
+
+
+    if (fileName.isEmpty() || fileName == "Empty")
+    {
+        setWindowFilePath(fileName);
+        groupActions->setEnabled(false);
+   //     searchLineEdit->setEnabled(false);
+    }
+    else
+    {
+        groupActions->setEnabled(true);
+        searchLineEdit->setEnabled(true);
+
+        if (scriptsBox->currentText() != lang)
+        {
+            int index = scriptsBox->findText(lang, Qt::MatchFixedString);
+            scriptsBox->blockSignals(true);
+            scriptsBox->setCurrentIndex(index);
+            scriptsBox->blockSignals(false);
+        }
+        if (windowFilePath() != fileName)
+        {
+            setWindowFilePath(fileName);
+
+            if (!QFileInfo(fileName).fileName().isEmpty())
+            {
+                fileName = QFileInfo(fileName).fileName();
+            }
+            else
+            {
+                revertAction->setEnabled(false);
+            }
+
+            saveAction->setText(tr("&Save \"%1\"").arg(fileName));
+            saveAsAction->setText(tr("Save \"%1\" &As...").arg(fileName));
+            closeAction->setText(tr("&Close \"%1\"").arg(fileName));
+        }
+    }
+    }
+}
+
 void MainWindow::open()
 {
     QString fileFilters = tr("All files (*)");
     QString dir = QFileInfo(windowFilePath()).absoluteDir().absolutePath();
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), dir, fileFilters);
+    QString fileName = QFileDialog::getOpenFileName(this, tr("Open file"), dir, fileFilters); // CHECK
     open(fileName);
 }
 
@@ -677,8 +767,8 @@ void MainWindow::open(QString fileName)
 void MainWindow::search()
 {
     QString searchText = searchLineEdit->text();
-    scene->findText(searchText);
-    
+    getScene()->findText(searchText);
+
 }
 
 void MainWindow::printPdf()
@@ -701,6 +791,7 @@ void MainWindow::printPdf()
     rect.setWidth(printer.pageRect().width() - (printer.paperRect().width() - printer.pageRect().width()));
 
     int endCondition;
+    DocumentScene *scene=getScene();
 
     if (selectedGroup == 0)
     {
@@ -767,6 +858,8 @@ void MainWindow::showPrintableArea()
     int pagelength = 1200;
     int endpage = 0;
 
+    DocumentScene *scene=getScene();
+
     if(printableAreaAction->isChecked())
     {
         line = new QGraphicsLineItem(0);
@@ -806,13 +899,13 @@ void MainWindow::showPrintableArea()
 void MainWindow::showArea()
 {
     for(int i=0; i<list.size(); i++)
-        scene->addItem(list.at(i));
+        getScene()->addItem(list.at(i));
 }
 
 void MainWindow::hideArea()
 {
     for(int i=0; i<list.size(); i++)
-        scene->removeItem(list.at(i));
+        getScene()->removeItem(list.at(i));
 }
 
 void MainWindow::openRecentFile()
@@ -878,7 +971,7 @@ void MainWindow::settings()
 
 void MainWindow::closeEvent(QCloseEvent *event)
 {
-    scene->closeAllGroups();
+    getScene()->closeAllGroups();
     writeSettings();
     event->accept();
 }

@@ -16,6 +16,8 @@
 #include <QList>
 #include <QTableView>
 
+
+
 typedef struct pokus
 {
         int test;
@@ -27,6 +29,7 @@ class LanguageManager;
 class BlockGroup;
 class QTableWidget;
 class QTableWidgetItem;
+class QDialog;
 
 class MainWindow : public QMainWindow
 {
@@ -34,6 +37,11 @@ class MainWindow : public QMainWindow
 
 public:
     MainWindow(QString programPath, QWidget *parent = 0);
+    DocumentScene* getScene();
+    LanguageManager* getLangManager();
+    QComboBox* getScriptBox();
+
+
 
 public slots:
     void open(QString fileName);
@@ -60,7 +68,8 @@ private slots:
     void showPrintableArea();
     void setShort();
     void savedShortcuts();
-	void wInit();
+    void closeShortcuts();
+        void wInit();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -68,6 +77,7 @@ protected:
 private:
     enum { MaxRecentFiles = 6 };
     QActionGroup *groupActions;     //! used to disable subset of actions when no group is selected
+    void setCurrentFile(DocumentScene *scene);
 
     QAction *aboutQtAction;
     QAction *newAction;
@@ -97,7 +107,7 @@ private:
 
     QAction *helpAction;
     QAction *aboutAction;
-	QAction *shortAction;
+        QAction *shortAction;
 
     QAction *textBoldAction;
     QAction *textItalicAction;
@@ -109,15 +119,16 @@ private:
     QMenu *helpMenu;
 
     QToolBar *formatToolBar;
-	QTabBar *tabBar;
+    // QTabBar *tabBar; // is not (and should not be) used ???
     QTabWidget *tabWidget;
     QSplashScreen *ico;
     QComboBox *scriptsBox;
     QLineEdit *searchLineEdit;
     QLabel *searchLabel;
+    QDialog *set_shortcuts;
 
     LanguageManager *langManager;
-    DocumentScene *scene;
+ //   DocumentScene *scene;
     QHash<QString, QPair<QFont, QColor> > *highlightFormats;
 
     QPrinter *printer;
@@ -127,9 +138,11 @@ private:
     QList<QGraphicsLineItem *> list;
 
     QGraphicsView* createView();
-	QTableWidget *m_table;
-    void createActions();
+    QTableWidget *m_table;
+    void createActions(DocumentScene *scene);
     void createMenus();
+    void createGlobalActions();
+    void disconnectAll();
     void createTabs();
     void createToolBars();
     QString strippedName(const QString &fullFileName);
@@ -138,12 +151,11 @@ private:
 
     void showArea();
     void hideArea();
-	QPointF startPoint;
+        QPointF startPoint;
     BlockGroup *selectedGroup;
 
     void readSettings();
     void writeSettings();
-//  set_shortcuts *setCustomShortcuts(this Qt::Window);
 };
 
 #endif // MAIN_WINDOW_H
