@@ -235,7 +235,7 @@ void MainWindow::createActions(DocumentScene *scene)
     // close all
     closeAllAction = new QAction(tr("Close All"), this);
     closeAllAction->setToolTip(tr("Close all files"));
-    connect(closeAllAction, SIGNAL(triggered()), this, SLOT(closeAllGroups()));
+    connect(closeAllAction, SIGNAL(triggered()), this, SLOT(DocumentScene::closeAllGroups()));
 
     // print pdf
     QIcon printIcon(":/m/print"); printIcon.addFile(":/s/print");

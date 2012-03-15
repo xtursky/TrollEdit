@@ -421,6 +421,7 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
  */
 TreeElement* Analyzer::analyzeFull(QString input)
 {
+    qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
     try
     {
         qDebug() << "input=" << input;

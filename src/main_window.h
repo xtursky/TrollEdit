@@ -16,6 +16,8 @@
 #include <QList>
 #include <QTableView>
 
+
+
 typedef struct pokus
 {
         int test;
