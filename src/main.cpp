@@ -62,7 +62,7 @@ int main(int argc, char *argv[])
     splashScreen.show();
     w.show();
 
-    QTimer::singleShot(2000, &splashScreen, SLOT(close()));
+    QTimer::singleShot(1000, &splashScreen, SLOT(close()));
     QTimer::singleShot(1000, &w, SLOT(wInit()));
     // open all files given as parameters
 //    w.newFile();
