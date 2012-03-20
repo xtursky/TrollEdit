@@ -11,6 +11,9 @@
 #include <QMessageBox>
 #include <QHash>
 #include <QList>
+#include <QThreadPool>
+
+#include <QDebug>
 
 class TreeElement;
 

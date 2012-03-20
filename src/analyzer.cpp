@@ -293,8 +293,9 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
  */
 TreeElement* Analyzer::analyzeFull(QString input)
 {
+    qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
     try
-    {
+    {        
         TreeElement *root = analyzeString(mainGrammar, input);
         root->setFloating();
         return root;
