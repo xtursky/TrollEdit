@@ -1,8 +1,8 @@
 /**
- * block.cpp
- *  ---------------------------------------------------------------------------
- * Contains the defintion of class Block and it's funtions and identifiers
- *
+ * @Title block.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class Block and it's functions and identifiers
+ * @Author Team 04 UfoPak + Team 10 Innovators
  */
 
 #include "block.h"
@@ -354,6 +354,10 @@ void Block::setParentBlock(Block *newParent, Block *nextSibling)
     if (nextSibling != 0)
         QGraphicsRectItem::stackBefore(nextSibling);
 }
+/**
+ * @Description Remove block and all ancestors (that would became leafs) from hierarchy
+ * @param deleteThis - If True delete all ancestors except this current Block. If False delete current Block too.
+*/
 
 Block *Block::removeBlock(bool deleteThis)
 {

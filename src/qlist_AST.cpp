@@ -1,3 +1,10 @@
+/**
+ * @Title qlist_AST.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class QListAST.
+ * @Author Team 10 Innovators
+ */
+
 #include "qlist_AST.h"
 
 #include <QDebug>

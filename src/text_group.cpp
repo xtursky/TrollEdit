@@ -1,3 +1,10 @@
+/**
+ * @Title text_group.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class TextGroup.
+ * @Author Team 04 Ufopak + Team 10 Innovators
+ */
+
 #include "text_group.h"
 
 #include "document_scene.h"

@@ -1,3 +1,10 @@
+/**
+ * @Title main.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class Main.
+ * @Author Team 04 Ufopak + Team 10 Innovators
+ */
+
 #include <QApplication>
 #include <QAction>
 #include "main_window.h"

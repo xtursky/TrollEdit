@@ -1,3 +1,10 @@
+/**
+ * @Title block_group.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class BlockGroup and it's functions and identifiers
+ * @Author Team 04 UfoPak + Team 10 Innovators
+ */
+
 #include "block_group.h"
 #include "text_group.h"
 #include "block.h"

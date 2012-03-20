@@ -1,3 +1,10 @@
+/**
+ * @Title doc_block.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class DocumentBlock (DocBlock) and it's functions and identifiers
+ * @Author Team 04 UfoPak + Team 10 Innovators
+ */
+
 #include <QTextBrowser>
 #include "doc_block.h"
 #include "arrow.h"

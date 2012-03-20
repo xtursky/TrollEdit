@@ -1,3 +1,10 @@
+/**
+ * @Title document_scene.cpp
+ * ---------------------------------------------------------------------------
+ * @Description Contains the defintion of class DocumentScene and it's functions and identifiers
+ * @Author Team 04 UfoPak + Team 10 Innovators
+ */
+
 #include "document_scene.h"
 #include "main_window.h"
 #include "block_group.h"
