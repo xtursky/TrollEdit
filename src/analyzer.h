@@ -23,8 +23,10 @@ extern "C" {
 #include "lauxlib.h"
 }
 
-class Analyzer
+class Analyzer : public QObject
 {
+    Q_OBJECT
+    
 public:
     Analyzer(QString script);
     ~Analyzer();

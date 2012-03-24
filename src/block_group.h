@@ -117,7 +117,7 @@ public slots:
     void moveFrom(Block *block, int key, int cursorPos);
     void updateSize();
 //    void updateAllInThread (QSharedPointer<TreeElement> rootElObj);
-    void updateAllInThread (TreeElement *rootEl);
+    void updateAllInThread (TreeElement* rootEl);
 //    void updateAllInThread ();
 
 protected:

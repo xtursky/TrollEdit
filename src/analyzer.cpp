@@ -294,6 +294,8 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
 TreeElement* Analyzer::analyzeFull(QString input)
 {
     qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
+    qDebug() << "\ncurrentThreadId();" << QThread::currentThreadId(); 
+    
     try
     {        
         TreeElement *root = analyzeString(mainGrammar, input);

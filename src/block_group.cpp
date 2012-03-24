@@ -769,7 +769,6 @@ bool BlockGroup::reanalyzeBlock(Block *block)
 //void BlockGroup::updateAllInThread (QSharedPointer<TreeElement> rootElObj) {
 void BlockGroup::updateAllInThread (TreeElement* rootEl) {
 //void BlockGroup::updateAllInThread () {
-//    TreeElement *rootEl = rootElObj.copyAndSetPointer;
 
 /*    
     mutex.lock();
@@ -787,6 +786,7 @@ void BlockGroup::updateAllInThread (TreeElement* rootEl) {
 	if (waitAnalyzer == true) 
 		waitAnalyzer = false;
 	
+    qDebug("text analysis: %d", time.restart());
     return;
 }
 
@@ -808,29 +808,12 @@ TreeElement* BlockGroup::analazyAllInThread (QString text, bool masterIsWaiting)
     return rootEl; 
 }
 
-/*
-//Process in parallel thread
-TreeElement* analazyAllInThread (Analyzer* analyzer, QString text, BlockGroup *obj) {
-    // create and return new root element
-    TreeElement* rootEl = analyzer->analyzeFull(text);
-    
-    emit obj->analyzerFinished(rootEl);
-    BlockGroup::emitAnalyzerFinished(rootEl, obj);
-        
-    return rootEl;
-}
-
-void BlockGroup::analyzerFinished(TreeElement* rootEl) {
-    emit obj->analyzerFinished(rootEl);
-    return;
-}
-*/
-
 void BlockGroup::analyzeAll(QString text)
 {
-    qDebug() << "\nBlockGroup::analyzeAll()" << text;
-
-    qDebug() << "text size : " << text.size();
+    qDebug() << "text size = " << text.size();
+    qDebug() << "waitAnalyer = " << waitAnalyzer;
+    qDebug() << "maxThreadCount = " << QThreadPool::globalInstance()->maxThreadCount();
+    qDebug() << "currentThreadId();\n" << QThread::currentThreadId(); 
     
     if (text.isEmpty()) //! use snippet if text is empty
     {
@@ -847,23 +830,21 @@ void BlockGroup::analyzeAll(QString text)
     QFuture<TreeElement*> future;
     future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
     watcher.setFuture(future);        
-    qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
     
     if (waitAnalyzer == false) {
-//        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
-        connect(&watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
-        qDebug() << "connect updateALlInThread";
+        bool connected = QObject::connect(&watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
+        qDebug() << "Connected:" << connected;
+        qDebug() << "CONNECT updateALlInThread";
+        qDebug("text analysis: %d", time.restart());
     }
     else  {
         qDebug() << "waitAnalyzer : " << waitAnalyzer;
         watcher.waitForFinished();
 //        groupRootEl = watcher.result();
         updateAllInThread(watcher.result());
-        qDebug() << "direct updateAllInThread()";
+        qDebug() << "DIRECT updateAllInThread()";
     }
-    
-    qDebug("text analysis: %d", time.restart());
-        
+            
     return;
 }
 
