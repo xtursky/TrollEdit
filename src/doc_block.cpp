@@ -87,7 +87,7 @@ DocBlock::DocBlock(QString text, TreeElement* el, Block* parentBlock, BlockGroup
 
     setFlag(QGraphicsItem::ItemIsMovable);
     setFlag(QGraphicsItem::ItemClipsChildrenToShape, false);
-//    myTextItem->setTextInteractionFlags(Qt::NoTextInteraction); //preco to pada?
+    myTextItem->setTextInteractionFlags(Qt::NoTextInteraction); //preco to pada?
     setAcceptDrops(false);
     setZValue(1);
     backup = 0;
@@ -160,6 +160,8 @@ Block *DocBlock::addTextCursorAt(QPointF pos)
     pos = mapToItem(myTextItem, pos);   //! map to my TextItem
     int cursorPos;
     // find cursor position
+    if(myTextItem == 0)
+        qDebug() << "myTextItem null";
     cursorPos = myTextItem->document()->documentLayout()->hitTest(pos, Qt::FuzzyHit);
     // set cursor position
 
@@ -245,8 +247,8 @@ void DocBlock::setContent(QString text)
 
 void DocBlock::addText(QString text)
 {
-//    myTextItem->setTextInteractionFlags(Qt::TextEditable | Qt::TextSelectableByKeyboard);
-//    myTextItem->setPlainText(text);
+    myTextItem->setTextInteractionFlags(Qt::TextEditable | Qt::TextSelectableByKeyboard);
+    myTextItem->setPlainText(text);
     docType = Text;
 
     if (arrow != 0)

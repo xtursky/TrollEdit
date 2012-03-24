@@ -185,7 +185,7 @@ void DocumentScene::saveGroup(QString fileName, BlockGroup *group, bool noDocs)
 
 void DocumentScene::saveGroupAs(BlockGroup *group)
 {
-    group=getBlockGroup();
+    //group=getBlockGroup();
 
     QString dir = QFileInfo(window->windowFilePath()).absoluteDir().absolutePath();
 
@@ -210,7 +210,8 @@ void DocumentScene::saveAllGroups()
 {
     foreach (BlockGroup *group, groups)
     {
-        saveGroup("", group);
+        saveGroup(group->fileName, group);
+//        saveGroup("", group); // povodna funkcia
     }
 }
 
@@ -460,8 +461,12 @@ void DocumentScene::mousePressEvent(QGraphicsSceneMouseEvent *event)
         }
         else
         {
-            QGraphicsItem *item = itemAt(event->scenePos());
-
+           QGraphicsItem *item = itemAt(event->scenePos());
+//            TextGroup* t = ((TextGroup*)(item));
+            //            if(qobject_cast<TextGroup*>(item)!=0){
+ //           if(t!=0){
+  //              selectGroup(t->block);
+  //          }
             if (item == 0)
             {
                 selectGroup();

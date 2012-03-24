@@ -18,6 +18,7 @@
 #include <QFutureWatcher>
 
 #include "analyzer.h"
+#include "text_group.h"
 
 class Block;
 class DocBlock;
@@ -49,7 +50,8 @@ public:
     bool isModified() const {return modified;}
     void setModified(bool flag);
     void setContent(QString content);
-    
+    void changeMode();
+
     // block management
     Block *getBlockIn(int line) const;
     void setBlockIn(Block *block, int line);
@@ -147,6 +149,7 @@ private:
     
 
     // fields
+    TextGroup *txt;
     QString fileName;           //! name of currently loaded file
     Analyzer *analyzer;         //! my analyzer
     Block *root;                //! main (root) block
