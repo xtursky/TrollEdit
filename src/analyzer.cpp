@@ -292,10 +292,7 @@ TreeElement *Analyzer::analyzeString(QString grammar, QString input)
  * @return analyzed String as a TreeElement
  */
 TreeElement* Analyzer::analyzeFull(QString input)
-{
-    qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
-    qDebug() << "\ncurrentThreadId();" << QThread::currentThreadId(); 
-    
+{        
     try
     {        
         TreeElement *root = analyzeString(mainGrammar, input);
@@ -304,7 +301,7 @@ TreeElement* Analyzer::analyzeFull(QString input)
     }
     catch(QString exMsg)
     {
-        msgBox->critical(0, "Runtime error", exMsg,QMessageBox::Ok,QMessageBox::NoButton);
+        msgBox->critical(0, "Runtime error", exMsg, QMessageBox::Ok, QMessageBox::NoButton);
         return 0;
     }
 }

@@ -16,6 +16,7 @@
 #include <QtConcurrentRun>
 #include <QFuture>
 #include <QFutureWatcher>
+#include <QThreadPool>
 
 #include "analyzer.h"
 
@@ -27,7 +28,6 @@ class FoldButton;
 class BlockGroup : public QObject, public QGraphicsRectItem
 {
     Q_OBJECT
-
 
 public:
     BlockGroup(QString text, Analyzer* analyzer, DocumentScene *scene);
@@ -82,6 +82,7 @@ public:
     TreeElement* analazyAllInThread (QString text, bool masterIsWaiting);
     void emitAnalyzerFinished(TreeElement* rootEl);
     QFutureWatcher<TreeElement*> watcher;
+    QFuture<TreeElement*> future;
     TreeElement *groupRootEl;
     
 
@@ -117,8 +118,8 @@ public slots:
     void moveFrom(Block *block, int key, int cursorPos);
     void updateSize();
 //    void updateAllInThread (QSharedPointer<TreeElement> rootElObj);
-    void updateAllInThread (TreeElement* rootEl);
-//    void updateAllInThread ();
+//    void updateAllInThread (TreeElement* rootEl);
+    void updateAllInThread ();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
