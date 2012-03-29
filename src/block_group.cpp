@@ -773,12 +773,12 @@ void BlockGroup::updateAllInThread () {
 
     if (waitAnalyzer == true) 
 		waitAnalyzer = false;
-/*    
+///*    
     mutex.lock();
     TreeElement *rootEl = groupRootEl;
     mutex.unlock();
-*/    
-    TreeElement *rootEl = watcher.result();
+//*/    
+//    TreeElement *rootEl = watcher.result();
     
     // create new root
     Block *newRoot = new Block(rootEl, 0, this);
@@ -798,11 +798,11 @@ TreeElement* BlockGroup::analazyAllInThread (QString text, bool masterIsWaiting)
     qDebug() << "currentThreadId();" << QThread::currentThreadId() << "\n";
     
     TreeElement* rootEl = analyzer->analyzeFull(text);
-/*    
+///*    
     mutex.lock();
     groupRootEl = rootEl;
     mutex.unlock();
-*/    
+//*/    
 //    if (masterIsWaiting == false) 
 //        emit analyzerFinished(rootEl);
 		
@@ -811,42 +811,48 @@ TreeElement* BlockGroup::analazyAllInThread (QString text, bool masterIsWaiting)
 
 void BlockGroup::analyzeAll(QString text)
 {
-    qDebug() << "text size = " << text.size();
-    qDebug() << "waitAnalyer = " << waitAnalyzer;
-    qDebug() << "maxThreadCount = " << QThreadPool::globalInstance()->maxThreadCount();
-    qDebug() << "currentThreadId(): " << QThread::currentThreadId(); 
+    try {    
+        qDebug() << "text size = " << text.size();
+        qDebug() << "waitAnalyer = " << waitAnalyzer;
+        qDebug() << "maxThreadCount = " << QThreadPool::globalInstance()->maxThreadCount();
+        qDebug() << "currentThreadId(): " << QThread::currentThreadId(); 
+        
+        if (text.isEmpty()) //! use snippet if text is empty
+        {
+            text = analyzer->getSnippet();
+            qDebug() << "\nDefault snippet used" << text;
+            getStatusBar()->showMessage("File reset - default text used", 2000);
     
-    if (text.isEmpty()) //! use snippet if text is empty
-    {
-        text = analyzer->getSnippet();
-        qDebug() << "\nDefault snippet used" << text;
-        getStatusBar()->showMessage("File reset - default text used", 2000);
-
-        if (text.isEmpty()) text = "    ";
-    }
-    time.restart();
+            if (text.isEmpty()) text = "    ";
+        }
+        time.restart();
+        
     
-
-//  Parallel processing via QtConcurrent only for AnalyzeFull. 
-    future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
-    watcher.setFuture(future);
-    if (waitAnalyzer == false) {
-        qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
-//        bool connected2 = QObject::connect(watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
-        bool connected = QObject::connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
-        qDebug() << "Connected:" << connected;
-        qDebug() << "CONNECT updateALlInThread";
-        qDebug("text analysis: %d", time.restart());
+    //  Parallel processing via QtConcurrent only for AnalyzeFull. 
+        future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
+        watcher.setFuture(future);
+        if (waitAnalyzer == false) {
+            qDebug() << "Beziacich threadov" << QThreadPool::globalInstance()->activeThreadCount();
+    //        bool connected2 = QObject::connect(watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
+            bool connected = QObject::connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
+            qDebug() << "Connected:" << connected;
+            qDebug() << "CONNECT updateALlInThread";
+            qDebug("text analysis: %d", time.restart());
+        }
+        else  { 
+            watcher.waitForFinished();
+            groupRootEl = watcher.result();
+            updateAllInThread();
+    //        updateAllInThread(watcher.result());
+            qDebug() << "DIRECT updateAllInThread()";
+            qDebug("text analysis: %d", time.restart());
+        }
     }
-    else  { 
-        watcher.waitForFinished();
-        groupRootEl = watcher.result();
-        updateAllInThread();
-//        updateAllInThread(watcher.result());
-        qDebug() << "DIRECT updateAllInThread()";
-        qDebug("text analysis: %d", time.restart());
+    catch( char *str ) {
+        qDebug() << "Caught exception on analyzeAll function: " << str;
+    } catch (...) {
+        qDebug() << "Unknown error catch in analyzeAll function";
     }
-            
     return;
 }
 
