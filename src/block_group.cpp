@@ -898,10 +898,6 @@ void BlockGroup::analyzeAll(QString text)
         qDebug() << "direct updateAllInThread()";
     }
     
-    qDebug("text analysis: %d", time.restart());
-    qDebug() << text;
-    qDebug() << "rootEl->getText()" << rootEl->getText();
-
     return;
 }
 
