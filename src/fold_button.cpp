@@ -1,10 +1,3 @@
-/**
- * @Title fold_button.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class FoldButton and it's functions and identifiers
- * @Author Team 10 Innovators
- */
-
 #include "fold_button.h"
 #include "block.h"
 #include "block_group.h"

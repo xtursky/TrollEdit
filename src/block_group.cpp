@@ -1,10 +1,3 @@
-/**
- * @Title block_group.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class BlockGroup and it's functions and identifiers
- * @Author Team 04 UfoPak + Team 10 Innovators
- */
-
 #include "block_group.h"
 #include "text_group.h"
 #include "block.h"
@@ -28,17 +21,17 @@ BlockGroup::BlockGroup(QString text, QString file, DocumentScene *scene)
     : QGraphicsRectItem(0, scene)
 {
     //this->analyzer = analyzer;
-    qDebug() << "currentText()" << scene->main->getScriptBox()->currentText();
+    qDebug() << scene->main->getScriptBox()->currentText();
 //    qDebug() << "filename split" << file.split(".")[1];
     qDebug() << "grammar = " << scene->main->getLangManager()->languages.value("C");
  //   qDebug() << "file" << file.split(".")[1];
     Analyzer *a;
     if(text.isEmpty()){
         a=new Analyzer(scene->main->getLangManager()->getLanguage(file.toLower()));
+        a->readSnippet(scene->main->getLangManager()->snippetFile);
     }else{
         a=new Analyzer(scene->main->getLangManager()->getLanguage(file.split(".")[1]));
     }
-
     this->analyzer = a;
     this->docScene = scene;
 
@@ -68,13 +61,11 @@ BlockGroup::BlockGroup(QString text, QString file, DocumentScene *scene)
     searched = false;
     smoothTextAnimation = false;
     foldableBlocks.clear();
-    
-    waitAnalyzer = true;    
 
     computeTextSize();
     setAcceptDrops(true);
     setFlag(QGraphicsItem::ItemIsMovable);
-    setPen(QPen(QBrush(Qt::gray), 2, Qt::DashDotLine));
+    setPen(QPen(QBrush(Qt::red),1, Qt::DashLine));
 
     time.start();
 
@@ -598,6 +589,27 @@ void BlockGroup::moveCursorUpDown(Block *start, bool moveUp, int from)
     selectBlock(target, true);
 }
 
+void BlockGroup::changeMode(){
+    if(isVisible()){
+        txt->setPlainText(this->toText());
+        txt->setPos(this->pos().x(),this->pos().y());
+        txt->setScale(this->scale());
+        txt->setFocus();
+        txt->setVisible(true);
+        this->setVisible(false);
+        docScene->selectGroup(this);
+        docScene->update();
+    }else{
+        txt->setVisible(false);
+        this->setContent(txt->toPlainText());
+        this->setPos(txt->pos().x(),txt->pos().y());
+        this->updateSize();
+        this->setVisible(true);
+        this->updateSize();
+        docScene->update();
+    }
+}
+
 void BlockGroup::updateSize()
 {
     // need to be called manually whenever size or position of blocks in this group changes
@@ -758,13 +770,14 @@ bool BlockGroup::reanalyzeBlock(Block *block)
 
     // find block of original analyzed element
     Block *analysedBl;
+    if(!TreeElement::DYNAMIC){
     do
     {
-        analysedBl = analysedEl->getBlock();
-        analysedEl = (*analysedEl)[0];
+        analysedBl = analysedEl->getBlock();    //BUG!!! Dynamicka verzia da null
+        analysedEl = (*analysedEl)[0];          //BUG!!! Ide mimo pola pri reanalyzovani
     }
     while (analysedBl == 0);
-
+    }else{analysedBl = block;}
     // collect data from original block
     bool isPrevLB = false;
 
@@ -777,16 +790,21 @@ bool BlockGroup::reanalyzeBlock(Block *block)
     int spaces = analysedBl->getElement()->getSpaces();
 
     // destroy original block
+    if(!TreeElement::DYNAMIC){
     analysedBl->setParentBlock(0); // NOTE: don't use removeBlock(), we don't want any aditional ancestors to be removed
     analysedBl->setVisible(false);
-    analysedBl->deleteLater();
+    analysedBl->deleteLater();}
     qDebug("old block deleted: %d", time.restart());
 
     // create new block
-    Block *newBlock = new Block(newEl, parentBl);
+    Block *newBlock = 0;
+    if(!TreeElement::DYNAMIC)
+    newBlock = new Block(newEl, parentBl);
+    else
+    newBlock = new Block(newEl, 0, this);
 
     if (nextSib != 0)
-        newBlock->setParentBlock(newBlock->parent, nextSib);
+        if(!TreeElement::DYNAMIC)newBlock->setParentBlock(newBlock->parent, nextSib);
     // set data
     newBlock->getElement()->setLineBreaking(isAnalyzedLB);
 
@@ -803,71 +821,10 @@ bool BlockGroup::reanalyzeBlock(Block *block)
     return true;
 }
 
-// slot
-//void BlockGroup::updateAllInThread (QSharedPointer<TreeElement> rootElObj) {
-void BlockGroup::updateAllInThread (TreeElement* rootEl) {
-//void BlockGroup::updateAllInThread () {
-//    TreeElement *rootEl = rootElObj.copyAndSetPointer;
-
-/*    
-    mutex.lock();
-    TreeElement *rootEl = groupRootEl;
-    mutex.unlock();
-*/    
-    // create new root
-    Block *newRoot = new Block(rootEl, 0, this);
-    qDebug("root creation: %d", time.restart());
-    
-    // set new root
-    setRoot(newRoot);
-    qDebug("root update: %d", time.restart());
-    
-	if (waitAnalyzer == true) 
-		waitAnalyzer = false;
-	
-    return;
-}
-
-//Process in parallel thread
-TreeElement* BlockGroup::analazyAllInThread (QString text, bool masterIsWaiting) {
-    
-    TreeElement* rootEl = analyzer->analyzeFull(text);
-/*    
-    mutex.lock();
-    groupRootEl = rootEl;
-    mutex.unlock();
-*/    
-    if (masterIsWaiting == false) 
-    {  
-        emit analyzerFinished(rootEl);
-//        return null;
-    }   
-		
-    return rootEl; 
-}
-
-/*
-//Process in parallel thread
-TreeElement* analazyAllInThread (Analyzer* analyzer, QString text, BlockGroup *obj) {
-    // create and return new root element
-    TreeElement* rootEl = analyzer->analyzeFull(text);
-    
-    emit obj->analyzerFinished(rootEl);
-    BlockGroup::emitAnalyzerFinished(rootEl, obj);
-        
-    return rootEl;
-}
-
-void BlockGroup::analyzerFinished(TreeElement* rootEl) {
-    emit obj->analyzerFinished(rootEl);
-    return;
-}
-*/
-
 void BlockGroup::analyzeAll(QString text)
 {
-    qDebug() << "text size : " << text.size();
-    
+    qDebug() << "\nBlockGroup::analyzeAll()";
+
     if (text.isEmpty()) //! use snippet if text is empty
     {
         text = analyzer->getSnippet();
@@ -877,28 +834,18 @@ void BlockGroup::analyzeAll(QString text)
         if (text.isEmpty()) text = "    ";
     }
     time.restart();
-    
 
-//  Parallel processing via QtConcurrent only for AnalyzeFull.
-    QFuture<TreeElement*> future;
-    future = QtConcurrent::run(this, &BlockGroup::analazyAllInThread, text, waitAnalyzer);    
-    watcher.setFuture(future);        
-    
-    
-    if (waitAnalyzer == false) {
-//        connect(&watcher, SIGNAL(finished()), this, SLOT(updateAllInThread()));
-        connect(&watcher, SIGNAL(analyzerFinished(TreeElement*)), this, SLOT(updateAllInThread(TreeElement*)));
-        qDebug() << "connect updateALlInThread";
-    }
-    else  {
-        qDebug() << "waitAnalyzer : " << waitAnalyzer;
-        watcher.waitForFinished();
-//        groupRootEl = watcher.result();
-        updateAllInThread(watcher.result());
-        qDebug() << "direct updateAllInThread()";
-    }
-    
-    return;
+    // create new root element
+    TreeElement *rootEl = analyzer->analyzeFull(text);
+    qDebug("text analysis: %d", time.restart());
+
+    // create new root
+    Block *newRoot = new Block(rootEl, 0, this);
+    qDebug("root creation: %d", time.restart());
+
+    // set new root
+    setRoot(newRoot);
+    qDebug("root update: %d", time.restart());
 }
 
 QString BlockGroup::toText(bool noDocs) const
@@ -987,26 +934,6 @@ void BlockGroup::keyPressEvent(QKeyEvent *event)
         }
     }
     QGraphicsRectItem::keyPressEvent(event);
-}
-
-void BlockGroup::changeMode(){
-    if(isVisible()){
-        txt->setPlainText(this->toText());
-        txt->setPos(this->pos().x(),this->pos().y());
-        txt->setScale(this->scale());
-        txt->setFocus();
-        txt->setVisible(true);
-        this->setVisible(false);
-        docScene->selectGroup(this);
-        docScene->update();
-    }else{
-        txt->setVisible(false);
-        this->setContent(txt->toPlainText());
-        this->setPos(txt->pos().x(),txt->pos().y());
-        this->updateSize();
-        this->setVisible(true);
-        docScene->update();
-    }
 }
 
 void BlockGroup::mousePressEvent(QGraphicsSceneMouseEvent *event)

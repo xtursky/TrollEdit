@@ -1,10 +1,9 @@
 /**
- * @Title arrow.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class Arrow and it's functions and identifiers
- * @Author Team 04 Ufopak + Team 10 Innovators
+ * analyzer.cpp
+ *  ---------------------------------------------------------------------------
+ * Contains the defintion of class Arrow and it's funtions and identifiers
+ *
  */
- 
 #include <QtGui>
 #include <math.h>
 

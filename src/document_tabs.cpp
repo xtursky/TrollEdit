@@ -1,10 +1,3 @@
-/**
- * @Title document_tabs.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class DocumentTabs and it's functions and identifiers
- * @Author Team 10 Innovators
- */
-
 #include "document_tabs.h"
 #include "main_window.h"
 

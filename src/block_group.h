@@ -13,9 +13,6 @@
 #include <QSet>
 #include <QTime>
 #include <QStatusBar>
-#include <QtConcurrentRun>
-#include <QFuture>
-#include <QFutureWatcher>
 
 #include "analyzer.h"
 #include "text_group.h"
@@ -79,15 +76,6 @@ public:
     void analyzeAll(QString text);
     bool reanalyzeBlock(Block* block);
     QString toText(bool noDocs = false) const;
-    
-    
-    bool waitAnalyzer;
-    TreeElement* analazyAllInThread (QString text);
-    TreeElement* analazyAllInThread (QString text, bool masterIsWaiting);
-    void emitAnalyzerFinished(TreeElement* rootEl);
-    QFutureWatcher<TreeElement*> watcher;
-    TreeElement *groupRootEl;
-    
 
     // visualization
     void showInsertLine(InsertLine type, QPointF scenePos);
@@ -110,22 +98,16 @@ public:
 
     DocumentScene *docScene;    //! my scene
     bool highlight;
-    
-    
 
 signals:
-    void analyzerFinished(TreeElement* rootEl);
-//    void analyzerFinished(QSharedPointer<TreeElement> rootElObj);
-    
+
+
 public slots:
     void keyTyped(QKeyEvent* event);
     void splitLine(Block *block, int cursorPos);
     void eraseChar(Block *block, int key);
     void moveFrom(Block *block, int key, int cursorPos);
     void updateSize();
-//    void updateAllInThread (QSharedPointer<TreeElement> rootElObj);
-    void updateAllInThread (TreeElement *rootEl);
-//    void updateAllInThread ();
 
 protected:
     void mousePressEvent(QGraphicsSceneMouseEvent *event);
@@ -144,9 +126,6 @@ private:
     void moveCursorLeftRight(Block *start, bool moveRight);
 
     void computeTextSize();
-    
-    QMutex mutex;
-    
 
     // fields
     TextGroup *txt;

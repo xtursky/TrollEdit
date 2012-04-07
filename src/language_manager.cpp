@@ -1,10 +1,3 @@
-/**
- * @Title language_manager.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class LanguageManager and it's functions and identifiers
- * @Author Team 04 Ufopak + Team 10 Innovators
- */
-
 #include "language_manager.h"
 #include "analyzer.h"
 #include <QDir>
@@ -67,6 +60,7 @@ QString LanguageManager::getLanguage(QString extens){
     QFileInfo defaultGrammar(programPath + DEFAULT_GRAMMAR);
     QFileInfo configFile(programPath + CONFIG_FILE);
     QFileInfo snippetFile(programPath + SNIPPET_FILE);
+    this->snippetFile=snippetFile.absoluteFilePath();
 
     foreach (QFileInfo file, grammars)
     {
@@ -74,7 +68,6 @@ QString LanguageManager::getLanguage(QString extens){
         {
             try
             {
-                qDebug() << "langMan file.absolutePath() " << file.absoluteFilePath();
                 Analyzer *a = new Analyzer(file.absoluteFilePath());
                 a->readSnippet(snippetFile.absoluteFilePath());
                 QStringList extensions = a->getExtensions();
@@ -111,7 +104,7 @@ Analyzer *LanguageManager::getAnalyzerFor(QString suffix) const
 
 Analyzer *LanguageManager::getAnalyzerForLang(QString language) const
 {
-//    qDebug() << "getAnalyzerForLang";
+    qDebug() << "getAnalyzerForLang";
     return getAnalyzerFor(languages.value(language));
 }
 

@@ -1,8 +1,8 @@
 /**
- * @Title block.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class Block and it's functions and identifiers
- * @Author Team 04 UfoPak + Team 10 Innovators
+ * block.cpp
+ *  ---------------------------------------------------------------------------
+ * Contains the defintion of class Block and it's funtions and identifiers
+ *
  */
 
 #include "block.h"
@@ -84,9 +84,9 @@ Block::Block(TreeElement *el, Block *parentBlock, BlockGroup *blockGroup)
     // process rest of the AST
     if (element->isLeaf()) //! leaf - create text area
     {
-        qDebug() << "text " << element->getType() << " par: " << element->allowsParagraphs()  ;
+        //qDebug() << "text " << element->getType() << " par: " << element->allowsParagraphs()  ;
         myTextItem = new TextItem(element->getType(), this, element->allowsParagraphs(), element->isPaired());
-        qDebug() << "this " << myTextItem;
+        //qDebug() << "this " << myTextItem;
     }
     else //! non-leaf - create rest of the tree
     {
@@ -357,10 +357,6 @@ void Block::setParentBlock(Block *newParent, Block *nextSibling)
     if (nextSibling != 0)
         QGraphicsRectItem::stackBefore(nextSibling);
 }
-/**
- * @Description Remove block and all ancestors (that would became leafs) from hierarchy
- * @param deleteThis - If True delete all ancestors except this current Block. If False delete current Block too.
-*/
 
 Block *Block::removeBlock(bool deleteThis)
 {
@@ -1359,8 +1355,8 @@ void Block::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 
     if (pointed) //! hover background
     {
-        QColor color = Qt::gray;
-        color.setAlpha(70);
+        QColor color = Qt::red;
+        color.setAlpha(80);
         painter->fillPath(path, color);
     }
 
@@ -1377,7 +1373,7 @@ void Block::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWi
 QColor Block::getHoverColor() const
 {
     if (element->isUnknown())
-        return Qt::red;
+        return Qt::green;
     else
         return Qt::blue;
 }

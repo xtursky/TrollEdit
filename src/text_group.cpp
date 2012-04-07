@@ -1,10 +1,3 @@
-/**
- * @Title text_group.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class TextGroup.
- * @Author Team 04 Ufopak + Team 10 Innovators
- */
-
 #include "text_group.h"
 
 #include "document_scene.h"
@@ -34,10 +27,8 @@ TextGroup::TextGroup(BlockGroup *block, DocumentScene *scene)
 
 TextGroup::~TextGroup()
 {
-
-}
-
-void TextGroup::changeMode(){
+    this->block=0;
+    this->scene=0;
 }
 
 void TextGroup::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -55,4 +46,3 @@ void TextGroup::mousePressEvent(QGraphicsSceneMouseEvent *event)
     }
     QGraphicsTextItem::mousePressEvent(event);
 }
-

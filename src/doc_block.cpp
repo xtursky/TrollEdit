@@ -1,10 +1,3 @@
-/**
- * @Title doc_block.cpp
- * ---------------------------------------------------------------------------
- * @Description Contains the defintion of class DocumentBlock (DocBlock) and it's functions and identifiers
- * @Author Team 04 UfoPak + Team 10 Innovators
- */
-
 #include <QTextBrowser>
 #include "doc_block.h"
 #include "arrow.h"
@@ -266,8 +259,6 @@ void DocBlock::addImage(const QImage &image, QString imagePath)
     cursor.document()->setPlainText("");
     cursor.insertImage(image);
     path = imagePath;
-    
-//    ToDo tu sa da spravit scaling pre prilis velky obrazok
 
     if (arrow != 0) arrow->setColor(getHoverColor());
 
